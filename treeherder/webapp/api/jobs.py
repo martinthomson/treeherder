@@ -633,6 +633,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
         job_guid = django_filters.CharFilter(name='job__guid')
         job__guid = django_filters.CharFilter(name='job__guid')  # for backwards compat
         title = django_filters.CharFilter(name='title')
+        value = django_filters.CharFilter(name='value')
         repository = django_filters.CharFilter(name='job__repository__name')
 
         class Meta:

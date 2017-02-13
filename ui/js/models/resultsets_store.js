@@ -931,8 +931,24 @@ treeherder.factory('ThResultSetStore', [
             return repositories[repoName].rsMap[resultsetId].selected_runnable_jobs;
         };
 
-        var getGeckoDecisionTaskID = function(repoName, resultsetId) {
+        var getGeckoDecisionTaskGUID = function(repoName, resultsetId) {
             let resultSet = getResultSet(repoName, resultsetId);
+            let platform = _.find(resultSet.platforms, {
+                "name": "gecko-decision",
+                "groups": [{"jobs": [{"state": "completed", "job_type_symbol": "D"}]}]});
+            if (platform) {
+                // Gecko Decision Task has been completed.
+                // Let's fetch the URL of full-tasks-graph.json
+                // This extra search is important to avoid confusion with Action Tasks
+                let decisionTask = _.find(platform.groups[0].jobs, {"job_type_symbol": "D"});
+
+                return decisionTask.job_guid;
+            }
+
+            return undefined;
+        }
+
+        var getGeckoDecisionTaskID = function(repoName, resultsetId) {
             let dtid = resultSet.geckoDecisionTaskID;
             // If we've retrieved it already, we can just return it again. Otherwise
             // try to find it. If it doesn't exist, we set it to an empty string.
@@ -940,18 +956,10 @@ treeherder.factory('ThResultSetStore', [
                 return $q.when(dtid);
             }
 
-            // If we've made it here, we need to try to find it.
-            var tcURLPromise;
-            var platform = _.find(resultSet.platforms, {
-                "name": "gecko-decision",
-                "groups": [{"jobs": [{"state": "completed", "job_type_symbol": "D"}]}]});
-            if (platform) {
-                // Gecko Decision Task has been completed.
-                // Let's fetch the URL of full-tasks-graph.json
-                // This extra search is important to avoid confusion with Action Tasks
-                var decision_task = _.find(platform.groups[0].jobs, {"job_type_symbol": "D"});
-                var job_guid = decision_task.job_guid;
-                tcURLPromise = ThJobDetailModel.getJobDetails({job_guid: job_guid},
+            let tcURLPromise;
+            let decisionTaskGUID = getGeckoDecisionTaskGUID(repoName, resultsetId);
+            if (decisionTaskGUID) {
+                tcURLPromise = ThJobDetailModel.getJobDetails({job_guid: decisionTaskGUID},
                                                               {timeout: null});
             }
             if (!tcURLPromise) {
@@ -1270,6 +1278,7 @@ treeherder.factory('ThResultSetStore', [
             addRunnableJobs: addRunnableJobs,
             isRunnableJobSelected: isRunnableJobSelected,
             getSelectedRunnableJobs: getSelectedRunnableJobs,
+            getGeckoDecisionTaskGUID: getGeckoDecisionTaskGUID,
             getGeckoDecisionTaskID: getGeckoDecisionTaskID,
             toggleSelectedRunnableJob: toggleSelectedRunnableJob,
             getResultSet: getResultSet,
