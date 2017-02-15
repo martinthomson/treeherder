@@ -516,7 +516,7 @@ w                                    });
 
         $scope.retriggerWithOptions = function() {
             var modalInstance = $uibModal.open({
-                templateUrl: 'partials/tcjobactions.html',
+                templateUrl: 'partials/main/tcjobactions.html',
                 controller: 'TCJobActionsCtrl',
                 size: 'lg',
                 resolve: {
