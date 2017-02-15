@@ -183,6 +183,13 @@ treeherder.controller('PluginCtrl', [
                         }
                     });
 
+                    // horrible hack to parse out the taskId until we fix bug 1323110
+                    if ($scope.taskclusterOptions.length) {
+                        $scope.job.taskId = $scope.taskclusterOptions[0].url.substring(
+                            $scope.taskclusterOptions[0].url.indexOf("#") + 1);
+                        console.log($scope.selectedJob);
+                    }
+
                     // incorporate the buildername into the job details if this is a buildbot job
                     // (i.e. it has a buildbot request id)
                     var buildbotRequestIdDetail = _.find($scope.job_details,
@@ -415,7 +422,7 @@ treeherder.controller('PluginCtrl', [
                                             // notification box.
                                             $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', true));
                                         });
-                                    });
+w                                    });
                                 });
                         } else {
                             ThJobModel.backfill(
@@ -514,7 +521,7 @@ treeherder.controller('PluginCtrl', [
                 size: 'lg',
                 resolve: {
                     job: function() {
-                        return $scope.selectedJob;
+                        return $scope.job;
                     },
                     repoName: function() {
                         return $scope.repoName;
