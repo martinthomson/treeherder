@@ -19,4 +19,4 @@ log_crossreference_error_lines_fail,\
 log_autoclassify,\
 log_autoclassify_fail\
     --concurrency=10 -l INFO \
-    --maxtasksperchild=500 -n log_parser.%h
+    -n log_parser.%h
